@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,37 +8,29 @@ using System.Text;
 using System.Windows.Forms;
 
 using System.IO;
+using OpenNETCF.Net.NetworkInformation;
 
-namespace arp_tool
+namespace arp_tool2
 {
     public partial class Form1 : Form
     {
+        NetInfo netinfo = new NetInfo();
         public Form1()
         {
             InitializeComponent();
-            getTable();
+            loadData();
         }
-        void getTable()
+
+        void loadData()
         {
-            MyAdapters.GetAdapters();
-
-            iphlp _iphlp = new iphlp();
-            iphlp.MBIPNETROW[] list = _iphlp.getMBIPNETROW();
-            foreach (iphlp.MBIPNETROW mi in list)
-            {
-                System.Diagnostics.Debug.WriteLine(mi.ToString());
-            }
-            dataGrid1.RowHeadersVisible = false;
-            dataGrid1.DataSource = list;
-            
+            dataGrid1.DataSource = netinfo.arp_entries;
         }
-
         private void mnuExit_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void mnuExport_Click(object sender, EventArgs e)
+        private void mnuExport_Click_1(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
             if (sfd.ShowDialog() == DialogResult.OK)
@@ -48,11 +40,12 @@ namespace arp_tool
                     // fileLoc is a global string variable, set in StreamReader example.
                     using (StreamWriter sw = new StreamWriter(sfd.FileName, false))
                     {
-                        iphlp.MBIPNETROW[] nr = (iphlp.MBIPNETROW[]) dataGrid1.DataSource;
+                        OpenNETCF.Net.NetworkInformation.ArpEntry[] nr = (OpenNETCF.Net.NetworkInformation.ArpEntry[])dataGrid1.DataSource;
                         //ds.WriteXml("XMLFileOut.xml",XmlWriteMode.IgnoreSchema);
-                        foreach (iphlp.MBIPNETROW dr in nr)
+                        foreach (OpenNETCF.Net.NetworkInformation.ArpEntry dr in nr)
                         {
-                            sw.Write(dr.ToString());
+                            sw.Write(dr.NetworkInterface + "\t" + dr.IPAddress + "\t" + dr.PhysicalAddress
+                             + "\t" + dr.ArpEntryType.ToString());
                             sw.WriteLine();
                         }
                     }
@@ -64,6 +57,17 @@ namespace arp_tool
                 }
             }
             sfd.Dispose();
+        }
+
+        private void mnuAdd_Click(object sender, EventArgs e)
+        {
+            newArpEntry dlg = new newArpEntry();
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                ArpEntry ae=dlg._ArpEntry;
+                NetInfo.createIPnetEntry(ae);
+                loadData();
+            }
         }
     }
 }

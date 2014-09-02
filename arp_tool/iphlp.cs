@@ -77,6 +77,7 @@ namespace arp_tool
             {
                 get { return _index; }
             }
+            
             //string _interfaceName = "";
             //public string interfaceNameTODO
             //{
@@ -233,6 +234,162 @@ namespace arp_tool
             return ipnettable.ToArray();
         }
     }
+
+    public static class MyAdapters{
+        [DllImport("iphlpapi.dll", CharSet = CharSet.Auto)]
+        static extern int GetAdaptersInfo(IntPtr pAdapterInfo, ref Int64 pBufOutLen);
+
+        const int MAX_ADAPTER_DESCRIPTION_LENGTH = 128;
+        const int ERROR_BUFFER_OVERFLOW = 111;
+        const int MAX_ADAPTER_NAME_LENGTH = 256;
+        const int MAX_ADAPTER_ADDRESS_LENGTH = 8;
+        const int MIB_IF_TYPE_OTHER = 1;
+        const int MIB_IF_TYPE_ETHERNET = 6;
+        const int MIB_IF_TYPE_TOKENRING = 9;
+        const int MIB_IF_TYPE_FDDI = 15;
+        const int MIB_IF_TYPE_PPP = 23;
+        const int MIB_IF_TYPE_LOOPBACK = 24;
+        const int MIB_IF_TYPE_SLIP = 28;
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct IP_ADDRESS_STRING
+        {
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 16)]
+            public string Address;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct IP_ADDR_STRING
+        {
+            public IntPtr Next;
+            public IP_ADDRESS_STRING IpAddress;
+            public IP_ADDRESS_STRING IpMask;
+            public Int32 Context;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct IP_ADAPTER_INFO
+        {
+            public IntPtr Next;
+            public Int32 ComboIndex;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_ADAPTER_NAME_LENGTH + 4)]
+            public string AdapterName;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_ADAPTER_DESCRIPTION_LENGTH + 4)]
+            public string AdapterDescription;
+            public UInt32 AddressLength;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = MAX_ADAPTER_ADDRESS_LENGTH)]
+            public byte[] Address;
+            public Int32 Index;
+            public UInt32 Type;
+            public UInt32 DhcpEnabled;
+            public IntPtr CurrentIpAddress;
+            public IP_ADDR_STRING IpAddressList;
+            public IP_ADDR_STRING GatewayList;
+            public IP_ADDR_STRING DhcpServer;
+            public bool HaveWins;
+            public IP_ADDR_STRING PrimaryWinsServer;
+            public IP_ADDR_STRING SecondaryWinsServer;
+            public Int32 LeaseObtained;
+            public Int32 LeaseExpires;
+        }
+
+        public static void GetAdapters()
+        {
+           long structSize = Marshal.SizeOf( typeof( IP_ADAPTER_INFO ) );
+           IntPtr pArray = Marshal.AllocHGlobal( (int)structSize );
+
+           int ret = GetAdaptersInfo( pArray, ref structSize );
+
+           if (ret == ERROR_BUFFER_OVERFLOW ) // ERROR_BUFFER_OVERFLOW == 111
+           {
+             // Buffer was too small, reallocate the correct size for the buffer.
+             pArray = Marshal.ReAllocHGlobal( pArray, new IntPtr (structSize) );
+
+             ret = GetAdaptersInfo( pArray, ref structSize );
+           } // if
+
+           if ( ret == 0 )
+           {
+             // Call Succeeded
+             IntPtr pEntry = pArray;
+
+             do
+             {
+               // Retrieve the adapter info from the memory address
+               IP_ADAPTER_INFO entry = (IP_ADAPTER_INFO)Marshal.PtrToStructure( pEntry, typeof( IP_ADAPTER_INFO ));
+
+               // ***Do something with the data HERE!***
+               System.Diagnostics.Debug.WriteLine("\n");
+               System.Diagnostics.Debug.WriteLine( "Index: {0}", entry.Index.ToString() );
+
+               // Adapter Type
+               string tmpString = string.Empty;
+               switch( entry.Type )
+               {
+                 case MIB_IF_TYPE_ETHERNET  : tmpString = "Ethernet";  break;
+                 case MIB_IF_TYPE_TOKENRING : tmpString = "Token Ring"; break;
+                 case MIB_IF_TYPE_FDDI      : tmpString = "FDDI"; break;
+                 case MIB_IF_TYPE_PPP       : tmpString = "PPP"; break;
+                 case MIB_IF_TYPE_LOOPBACK  : tmpString = "Loopback"; break;
+                 case MIB_IF_TYPE_SLIP      : tmpString = "Slip"; break;
+                 default                    : tmpString = "Other/Unknown"; break;
+               } // switch
+               System.Diagnostics.Debug.WriteLine( "Adapter Type: {0}", tmpString );
+
+               System.Diagnostics.Debug.WriteLine( "Name: {0}", entry.AdapterName );
+               System.Diagnostics.Debug.WriteLine( "Desc: {0}\n", entry.AdapterDescription );
+
+               System.Diagnostics.Debug.WriteLine( "DHCP Enabled: {0}", ( entry.DhcpEnabled == 1 ) ? "Yes" : "No" );
+
+               if (entry.DhcpEnabled == 1)
+               {
+                 System.Diagnostics.Debug.WriteLine( "DHCP Server : {0}", entry.DhcpServer.IpAddress.Address );
+
+                 // Lease Obtained (convert from "time_t" to C# DateTime)
+                 DateTime pdatDate = new DateTime(1970, 1, 1).AddSeconds( entry.LeaseObtained ).ToLocalTime();
+                 System.Diagnostics.Debug.WriteLine( "Lease Obtained: {0}", pdatDate.ToString() );
+
+                 // Lease Expires (convert from "time_t" to C# DateTime)
+                 pdatDate = new DateTime(1970, 1, 1).AddSeconds( entry.LeaseExpires ).ToLocalTime();
+                 System.Diagnostics.Debug.WriteLine( "Lease Expires : {0}\n", pdatDate.ToString() );
+               } // if DhcpEnabled
+
+               System.Diagnostics.Debug.WriteLine( "IP Address     : {0}", entry.IpAddressList.IpAddress.Address );
+               System.Diagnostics.Debug.WriteLine( "Subnet Mask    : {0}", entry.IpAddressList.IpMask.Address );
+               System.Diagnostics.Debug.WriteLine( "Default Gateway: {0}", entry.GatewayList.IpAddress.Address );
+
+               // MAC Address (data is in a byte[])
+               tmpString = string.Empty;
+               for (int i = 0; i < entry.AddressLength; i++)
+               {
+                 tmpString += string.Format("{0:X2}-", entry.Address[i]);
+               }
+               System.Diagnostics.Debug.WriteLine( string.Format( "MAC Address    : {0}{1:X2}\n", tmpString, entry.Address[entry.AddressLength] ));
+
+               System.Diagnostics.Debug.WriteLine( "Has WINS: {0}", entry.HaveWins ? "Yes" : "No" );
+               if (entry.HaveWins)
+               {
+                 System.Diagnostics.Debug.WriteLine( "Primary WINS Server  : {0}", entry.PrimaryWinsServer.IpAddress.Address );
+                 System.Diagnostics.Debug.WriteLine( "Secondary WINS Server: {0}", entry.SecondaryWinsServer.IpAddress.Address );
+               } // HaveWins
+
+               // Get next adapter (if any)
+               pEntry = entry.Next;
+
+             }
+             while( pEntry != IntPtr.Zero );
+
+             Marshal.FreeHGlobal(pArray);
+
+           } // if
+           else
+           {
+             Marshal.FreeHGlobal(pArray);
+             throw new InvalidOperationException( "GetAdaptersInfo failed: " + ret );
+           }
+
+        } // GetAdapters
+    }
     public class ifentry
     {
         const int MAX_INTERFACE_NAME_LEN = 256;
@@ -240,22 +397,22 @@ namespace arp_tool
         const int MAXLEN_IFDESCR = 256;
 
         [DllImport("iphlpapi.dll")]
-        static extern uint GetIfEntry(ref MIB_IFROW pIfTable);
+        static extern int GetIfEntry(IntPtr pIfTable);
 
         [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
         struct MIB_IFROW
         {
-            [MarshalAs(UnmanagedType.ByValTStr,SizeConst=MAX_INTERFACE_NAME_LEN)]
+            [MarshalAs(UnmanagedType.ByValTStr,SizeConst=MAX_INTERFACE_NAME_LEN)]   //  256 bytes
             public string wszName;
-            public uint dwIndex, dwType, dwMtu, dwSpeed, dwPhysAddrLen;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst=MAXLEN_PHYSADDR)]
+            public UInt32 dwIndex, dwType, dwMtu, dwSpeed, dwPhysAddrLen;           //   20 bytes   5x4Bytes    Uint32 is 4Bytes
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst=MAXLEN_PHYSADDR)]        //    8 bytes
             public byte[] bPhysAddr;
-            public uint dwAdminStatus, dwOperStatus, dwLastChange;
-            public uint dwInOctets, dwInUcastPkts, dwInNUcastPkts;
-            public uint dwInDiscards, dwInErrors, dwInUnknownProtos;
-            public uint dwOutOctets, dwOutUcastPkts, dwOutNUcastPkts;
-            public uint dwOutDiscards, dwOutErrors, dwOutQLen, dwDescrLen;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst=MAXLEN_IFDESCR)]
+            public UInt32 dwAdminStatus, dwOperStatus, dwLastChange;                //   12 bytes   3x4Bytes
+            public UInt32 dwInOctets, dwInUcastPkts, dwInNUcastPkts;                //   12 bytes
+            public UInt32 dwInDiscards, dwInErrors, dwInUnknownProtos;              //   12 bytes
+            public UInt32 dwOutOctets, dwOutUcastPkts, dwOutNUcastPkts;             //   12 bytes
+            public UInt32 dwOutDiscards, dwOutErrors, dwOutQLen, dwDescrLen;        //   16 bytes   4x4Bytes
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst=MAXLEN_IFDESCR)]         //  256 bytes
             public byte[] bDescr;
         }
 
@@ -263,7 +420,41 @@ namespace arp_tool
             MIB_IFROW mib_ifrow = new MIB_IFROW();
             mib_ifrow.wszName = new string(' ', MAX_INTERFACE_NAME_LEN);
             mib_ifrow.dwIndex = index;
-            uint uRes = GetIfEntry(ref mib_ifrow);
+
+            // Allocate the memory, do it in a try/finally block, to ensure
+            // that it is released.
+            IntPtr buffer = IntPtr.Zero;
+            int result = 0;
+            try
+            {
+                // Allocate the memory.
+                int MIB_IFROWsize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(MIB_IFROW));
+                buffer = Marshal.AllocHGlobal(MIB_IFROWsize);
+                mib_ifrow.dwIndex = index;
+                //copy struct to buffer
+                Marshal.StructureToPtr(mib_ifrow, buffer, true);
+                // Make the call again. If it did not succeed, then
+                // raise an error.
+                result = GetIfEntry(buffer);
+                // If the result is not 0 (no error), then throw an exception.
+                if (result != 0)
+                {
+                    // #define ERROR_INVALID_DATA               13L
+                    // Throw an exception.
+                    throw new ArgumentException(result.ToString());
+                }
+                // Now we have the buffer, we have to marshal it. We can read
+                mib_ifrow = (MIB_IFROW)Marshal.PtrToStructure(buffer, typeof(MIB_IFROW));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("exception: " + ex.Message);
+            }
+            finally
+            {
+                // Release the memory.
+                Marshal.FreeHGlobal(buffer);
+            }
             string s = mib_ifrow.wszName;
             return s;
         }
