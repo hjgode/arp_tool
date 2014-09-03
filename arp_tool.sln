@@ -1,28 +1,32 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "arp_tool", "arp_tool\arp_tool.csproj", "{2AA6ACB9-79D8-4082-93DA-C990CDC59B5E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "arp_tool2", "arp_tool2\arp_tool2.csproj", "{DF7CA119-F951-4BB4-9B07-F346EF07B810}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arp_tool3", "arp_tool3\arp_tool3.vcproj", "{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I) = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I) = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2AA6ACB9-79D8-4082-93DA-C990CDC59B5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AA6ACB9-79D8-4082-93DA-C990CDC59B5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AA6ACB9-79D8-4082-93DA-C990CDC59B5E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{2AA6ACB9-79D8-4082-93DA-C990CDC59B5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AA6ACB9-79D8-4082-93DA-C990CDC59B5E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2AA6ACB9-79D8-4082-93DA-C990CDC59B5E}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{DF7CA119-F951-4BB4-9B07-F346EF07B810}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DF7CA119-F951-4BB4-9B07-F346EF07B810}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DF7CA119-F951-4BB4-9B07-F346EF07B810}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{DF7CA119-F951-4BB4-9B07-F346EF07B810}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DF7CA119-F951-4BB4-9B07-F346EF07B810}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DF7CA119-F951-4BB4-9B07-F346EF07B810}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Debug|Any CPU.ActiveCfg = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Debug|Mixed Platforms.ActiveCfg = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Debug|Mixed Platforms.Build.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Debug|Mixed Platforms.Deploy.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Build.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Deploy.0 = Debug|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Release|Any CPU.ActiveCfg = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Release|Mixed Platforms.ActiveCfg = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Release|Mixed Platforms.Build.0 = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Release|Mixed Platforms.Deploy.0 = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).ActiveCfg = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Build.0 = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
+		{D984186E-5D3C-4C70-A321-2C88FDB0BFDE}.Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I).Deploy.0 = Release|Windows Mobile 5.0 Pocket PC SDK (ARMV4I)
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
